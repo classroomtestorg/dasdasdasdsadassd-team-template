@@ -24,7 +24,7 @@ Bundler will install all of the project dependencies (located in `Gemfile`) of t
 
 Next you'll need to create the local database using
 
-`$ rails db:setup`
+`$ rails db:setup`dasdasdsa
 
 After that you're ready to launch the site using:
 
