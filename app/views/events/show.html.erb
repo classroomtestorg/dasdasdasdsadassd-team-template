@@ -1,0 +1,66 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title"><%= @event.title %></h5>
+    <h6 class="card-subtitle mb-2 text-muted">
+      <%= @event.start_date.strftime('%A, %B %d, %Y from %l:%M%P') %> - <%= @event.end_time.strftime('%l:%M%P') %>
+      <% if @event.start_date.future? %>
+        (in <%= distance_of_time_in_words(Time.now, @event.start_date) %>)
+      <% else %>
+        (<%= distance_of_time_in_words(Time.now, @event.start_date) %> ago)
+      <% end %>
+    </h6>
+    <% if @event.registration_enabled %>
+      <br>
+      <h6 class="card-subtitle mb-2 text-muted">
+        There are <%= "#{@event.spots_remaining}/#{@event.capacity}" %> spots open.
+      </h6>
+    <% end %>
+    <br>
+    <div class="card-text">
+      <p><b>Location: </b><%= link_to @event.location, "https://maps.google.com/?q=#{@event.location}", target: :_blank %></p>
+      <p><b>Description: </b><%= markdown(@event.description) %></p>
+    </div>
+
+    <br>
+    <% if @event.registration_enabled %>
+      <% if current_user && @event.start_date.future? %>
+          <% if @user_registration %>
+            <%= link_to 'Unregister from Event',
+              registration_path(event_id: @event.id, registration_id: @user_registration),
+              method: :delete,
+              class: "btn btn-danger" %>
+          <% elsif @event.current_capacity < @event.capacity %>
+            <%= link_to 'Register for Event',
+              new_registration_path(event_id: @event.id, user_id: current_user.id),
+              class: "btn btn-success" %>
+          <% else %>
+            <a class="btn btn-danger disabled">Event Full</a>
+          <% end %>
+      <% elsif current_user.nil? %>
+         <a class="btn btn-success disabled">Sign in to Register</a>
+      <% end %>
+    <% end %>
+    <% if current_user&.is_admin? %>
+      <%= link_to 'Edit', edit_event_path(@event), class: "btn btn-warning" %>
+      <%= link_to 'Delete', event_path(@event),
+        method: :delete,
+        data: { confirm: 'Are you sure?' },
+        class: "btn btn-danger" %>
+    <% end %>
+  </div>
+</div>
+<br>
+<% if current_user&.is_admin? %>
+  <h5>Guest List</h5>
+  <ol class="list-group">
+    <% if @event.all_guests.empty? %>
+      <li class="list-group-item">There are no users registered for this event.</li>
+    <% else %>
+      <% @event.all_guests.each do |guest| %>
+        <li class="list-group-item" style="display: list-item;"><%= guest.name %> - <%= guest.email %></li>
+      <% end %>
+    <% end %>
+  </ol>
+<% end %>
+<br>
+<%= link_to 'Back', events_path, class: "btn btn-primary" %>

@@ -1,0 +1,56 @@
+<% if current_user&.is_admin? %>
+  <center>
+    <%= link_to 'New Event', new_event_path, class: "btn btn-success" %>
+  </center>
+<% end %>
+
+<h4>Upcoming events</h4>
+
+<% @future_events.each do |event| %>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><%= event.title %></h5>
+      <h6 class="card-subtitle mb-2 text-muted">
+        <%= event.start_date.strftime('%A, %B %d, %Y %l:%M%P') %> - <%= event.end_time.strftime('%l:%M%P') %>
+        (in <%= distance_of_time_in_words(Time.now, event.start_date) %>)
+      </h6>
+      <p class="card-text"><%= truncate(strip_tags(markdown(event.description)), length: 200) %></p>
+      <%= link_to 'View', event_path(event), class: "card-link btn btn-primary" %>
+      <% if event.registration_enabled %>
+        <%= link_to 'Register', event_path(event), class: "card-link btn btn-success" %>
+      <% end %>
+      <% if current_user&.is_admin? %>
+        <%= link_to 'Edit', edit_event_path(event), class: "card-link btn btn-warning" %>
+        <%= link_to 'Delete', event_path(event),
+          method: :delete,
+          data: { confirm: 'Are you sure?' },
+          class: "card-link btn btn-danger" %>
+      <% end %>
+    </div>
+  </div>
+  <br>
+<% end %>
+
+<h4>Past events</h4>
+
+<% @past_events.each do |event| %>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title"><%= event.title %></h5>
+      <h6 class="card-subtitle mb-2 text-muted">
+        <%= event.start_date.strftime('%A, %B %d, %Y %l:%M%P') %> - <%= event.end_time.strftime('%l:%M%P') %>
+        (<%= distance_of_time_in_words(Time.now, event.start_date) %> ago)
+      </h6>
+      <p class="card-text"><%= truncate(strip_tags(markdown(event.description)), length: 200) %></p>
+      <%= link_to 'View', event_path(event), class: "card-link btn btn-primary" %>
+      <% if current_user&.is_admin? %>
+        <%= link_to 'Edit', edit_event_path(event), class: "card-link btn btn-warning" %>
+        <%= link_to 'Delete', event_path(event),
+          method: :delete,
+          data: { confirm: 'Are you sure?' },
+          class: "card-link btn btn-danger" %>
+      <% end %>
+    </div>
+  </div>
+  <br>
+<% end %>
